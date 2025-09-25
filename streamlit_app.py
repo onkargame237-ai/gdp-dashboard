@@ -6,6 +6,7 @@ import streamlit as st
 def stock_high_low(symbol, start_date, end_date):
     stock = yf.Ticker(symbol)
     data = stock.history(start=start_date, end=end_date)
+    print(data)
 
     df = pd.DataFrame({
         "Date": data.index.date,
