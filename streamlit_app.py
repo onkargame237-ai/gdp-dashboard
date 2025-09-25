@@ -4,9 +4,14 @@ import streamlit as st
 
 # Function to get stock high/low
 def stock_high_low(symbol, start_date, end_date):
+    # Adjust end date: yfinance treats end as exclusive
+    end_date_adj = pd.to_datetime(end_date) + pd.Timedelta(days=1)
+    
     stock = yf.Ticker(symbol)
-    data = stock.history(start=start_date, end=end_date)
-    print(data)
+    data = stock.history(start=start_date, end=end_date_adj)
+    
+    if data.empty:
+        return pd.DataFrame()  # empty DataFrame if no data
 
     df = pd.DataFrame({
         "Date": data.index.date,
@@ -18,12 +23,16 @@ def stock_high_low(symbol, start_date, end_date):
     return df.reset_index(drop=True)
 
 # Streamlit UI
-st.title("📊 Indian Stock High/Low")
+st.title("📊 Indian Stock High/Low Viewer")
 
 # Input fields
 symbol = st.text_input("Enter Stock Symbol (e.g. INFY.NS, RELIANCE.NS)", "INFY.NS")
 start_date = st.date_input("Start Date")
 end_date = st.date_input("End Date")
+
+# Auto-adjust end date if it's today or in future
+if end_date >= pd.Timestamp.today().date():
+    end_date = pd.Timestamp.today().date() - pd.Timedelta(days=1)
 
 if st.button("Get Data"):
     try:
@@ -32,9 +41,9 @@ if st.button("Get Data"):
             st.write("### Stock Data")
             st.dataframe(df)
 
-            # Optional: Plot high and low
+            # Plot high and low
             st.line_chart(df.set_index("Date")[["High", "Low"]])
         else:
-            st.warning("No data found for this stock/date range.")
+            st.warning("No data found for this stock/date range. Check symbol or try an earlier date.")
     except Exception as e:
         st.error(f"Error: {e}")
