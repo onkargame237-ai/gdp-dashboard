@@ -20,6 +20,17 @@ def stock_high_low(symbol, start_date, end_date):
         "Low": data["Low"],
         "High+Low": data["High"] + data["Low"]
     })
+    
+    # Add TOTAL row
+    total_row = pd.DataFrame({
+        "Date": ["TOTAL"],
+        "Stock": [symbol],
+        "High": [df["High"].sum()],
+        "Low": [df["Low"].sum()],
+        "High+Low": [df["High+Low"].sum()]
+    })
+    df = pd.concat([df, total_row], ignore_index=True)
+    
     return df.reset_index(drop=True)
 
 # Streamlit UI
@@ -41,8 +52,8 @@ if st.button("Get Data"):
             st.write("### Stock Data")
             st.dataframe(df)
 
-            # Plot high and low
-            st.line_chart(df.set_index("Date")[["High", "Low"]])
+            # Plot high and low (exclude TOTAL row)
+            st.line_chart(df[df["Date"] != "TOTAL"].set_index("Date")[["High", "Low"]])
         else:
             st.warning("No data found for this stock/date range. Check symbol or try an earlier date.")
     except Exception as e:
