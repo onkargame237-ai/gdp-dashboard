@@ -17,7 +17,7 @@ def stock_high_low(symbol, start_date, end_date):
     return df.reset_index(drop=True)
 
 # Streamlit UI
-st.title("📊 Indian Stock High/Low Viewer")
+st.title("📊 Indian Stock High/Low")
 
 # Input fields
 symbol = st.text_input("Enter Stock Symbol (e.g. INFY.NS, RELIANCE.NS)", "INFY.NS")
